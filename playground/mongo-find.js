@@ -27,5 +27,5 @@ mc.connect(url, (err, db)=> {
         console.log(err);
     });
   
-    db.close();
+   // db.close();
 })
