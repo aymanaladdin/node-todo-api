@@ -7,7 +7,10 @@ const {Todo} = require("./../models/todo.js");
 
 beforeEach((done)=>{
     Todo.remove({})
-        .then(()=>{ done(); })
+        .then(()=>{
+            return Todo.insertMany([ {text: "first from test"}, {text: "secnd from test"} ])
+        })
+        .then(()=> done() );
 });
 
 
@@ -27,14 +30,15 @@ describe("POST /todos", ()=>{
                     return done(err);
                 }
                 
-                Todo.find()
+                Todo.find({text})
                     .then((docs)=>{
                         expect(docs.length).toBe(1);
                         done();
                       })
                     .catch((err)=>{ done(err); });
             });
-    });
+        })
+    ;
 
 
     it("Should fail to create new TODO", (done)=>{
@@ -47,11 +51,25 @@ describe("POST /todos", ()=>{
 
                 Todo.find()
                 .then((docs)=>{
-                    expect(docs.length).toBe(0);
+                    expect(docs.length).toBe(2);
                     done();
                   })
                 .catch((err)=>{ done(err); });
             });
-    });
+        })
+    ;
 
+});
+
+describe("GET /todos", ()=>{
+    it("Should get all todos", (done)=>{
+        request(app)
+            .get("/todos")
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.todos.length).toBe(2)
+            })
+            .end(done)
+        ;
+    });
 });
