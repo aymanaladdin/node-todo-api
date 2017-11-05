@@ -12,7 +12,9 @@ const todos = [{
     },
     {
         _id: new oid(),
-        text: "secnd from test"
+        text: "secnd from test",
+        complete: true,
+        completedAt: 332213
 }];
 
 
@@ -143,6 +145,76 @@ describe("DELETE /todos/:id", ()=>{
                 ;
             })
         ;
+    });
+
+    it("Should return 404 if todo not found", (done)=>{
+        let id = new oid().toHexString()
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done)
+        ;
+    });
+
+    it("Should return 404 if id is not valid", (done)=>{
+        let id = "123abc"
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done)
+        ;
+    });
+});
+
+describe("PATCH /todos/:id", ()=>{
+    it("Should update the todo", (done)=>{
+        let id = todos[0]._id.toHexString();
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({text: "Completed :D", complete: true})
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.todo.text).toBe("Completed :D");
+                expect(res.body.todo.completedAt).toBeA("number");
+                expect(res.body.todo.complete).toBe(true);
+            })
+            .end(done);
+    });
+    
+    it("Should clear completedAt when todo isn't complete", (done)=>{
+        
+        let id = todos[1]._id.toHexString();
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({text: "Not Completed :D"})
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.todo.text).toBe("Not Completed :D");
+                expect(res.body.todo.completedAt).toNotExist();
+                expect(res.body.todo.complete).toBe(false);
+            })
+            .end(done);
+            // .end((err, res)=>{
+            //     if(err) return done(err);
+
+            //     Todo.findById(id)
+            //         .then((todo)=>{
+            //             expect(todo.text).toBe("Not Completed :D");
+            //             expect(todo.completedAt).toNotExist();
+            //             done();                
+            //         })
+            //         .catch((err)=> done(err))
+            //     ;
+            // })
+    });
+
+    it("Should return 400 for todo validation error", (done)=>{
+        let id = todos[0]._id.toHexString();
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({text:""})
+            .expect(400)
+            .end(done);
     });
 
     it("Should return 404 if todo not found", (done)=>{
