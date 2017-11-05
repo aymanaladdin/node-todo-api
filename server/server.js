@@ -44,11 +44,11 @@ app.get('/todos/:id', (req, res)=>{
     }
 
     Todo.findById(id)
-        .then((doc)=>{
-            if(doc === null) {
+        .then((todo)=>{
+            if(todo === null) {
                  return res.status(404).send("Item Not Found");
             }
-            res.send(doc);
+            res.send({todo});
         })
         .catch((err)=>{
             res.status(400).send("Something went wrong");
