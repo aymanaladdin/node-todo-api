@@ -67,6 +67,40 @@ UserSchema.statics.findByToken = function(token){
     return User.findOne({'_id': decoded._id, 'tokens.access': 'auth', 'tokens.token': token });
 };
 
+UserSchema.statics.findByCredentialsCB = function(email, password){
+    const User = this;
+
+    return User.findOne({email})
+               .then((user)=>{
+                   if(! user) return Promise.reject({error: "Invalid Email"});
+
+                   return new Promise((resolve, reject)=>{
+                       bcrypt.compare(password, user.password, (e, r)=>{
+                           if (r) resolve(user);
+                           reject({error: "Password not Match!"});
+                       });
+                   });
+               });
+};
+
+
+UserSchema.statics.findByCredentials = function(email, password){
+    const User = this;
+    let userData = {};
+
+    return User.findOne({email})
+               .then((user)=>{
+                   if(! user) return Promise.reject({error: "Invalid Email"});
+
+                   userData = user;
+                   return bcrypt.compare(password, user.password);
+               })
+               .then((match)=>{
+                   if(match) return userData;
+
+                   return Promise.reject({error: "Password not Match!"});
+               });
+};
 //hashing passwoed middleware
 UserSchema.pre('save', function(next){
     const user = this;

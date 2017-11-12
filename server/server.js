@@ -3,6 +3,7 @@ require("./config/config");
 const express = require('express')
 const body_parser = require('body-parser');
 const _ = require("lodash");
+const bcrypt = require("bcryptjs");
 
 const {ObjectID : oid} = require("mongodb");
 
@@ -127,6 +128,34 @@ app.post("/users", (req, res)=>{
         .then((token)=> res.header("x-auth", token).send(user))
         .catch((err)=> res.status(400).send(err));
 
+});
+
+app.post('/users/login', (req, res)=>{
+    const body = _.pick(req.body, ["email", "password"]);
+    let resUser = {};
+    
+    if(!body.email || !body.password) return res.status(400).send();
+
+    User.findByCredentials(body.email, body.password)
+        .then((user)=> {
+            resUser = user;
+            return user.generateAuthToken();
+        })
+        .then((token)=> res.header('x-auth', token).send(resUser))
+        .catch((e)=> res.status(400).send(e));
+
+    // User.findOne({email: body.email})
+    //     .then((user)=>{
+    //         if(!user) return Promise.reject({error: "Invalid Email"});
+    //         resUser = user;
+    //         return bcrypt.compare(body.password, user.password);
+    //     })
+    //     .then((match)=>{
+    //         if(!match) return Promise.reject({error: "Password not Match!"});
+
+    //         res.send(resUser);
+    //     })
+    //     .catch((err)=> res.status(400).send(err));
 });
 
 app.get('/users/me',authenticate, (req, res)=>{
