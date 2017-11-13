@@ -144,22 +144,24 @@ app.post('/users/login', (req, res)=>{
         .then((token)=> res.header('x-auth', token).send(resUser))
         .catch((e)=> res.status(400).send(e));
 
-    // User.findOne({email: body.email})
-    //     .then((user)=>{
-    //         if(!user) return Promise.reject({error: "Invalid Email"});
-    //         resUser = user;
-    //         return bcrypt.compare(body.password, user.password);
-    //     })
-    //     .then((match)=>{
-    //         if(!match) return Promise.reject({error: "Password not Match!"});
-
-    //         res.send(resUser);
-    //     })
-    //     .catch((err)=> res.status(400).send(err));
 });
 
 app.get('/users/me',authenticate, (req, res)=>{
     res.send(req.user);    
+});
+
+app.delete('/users/me/token', authenticate, (req, res)=>{
+    const user = req.user;
+    const auth_token = req.token;
+
+    user.removeToken(auth_token)
+        .then(()=>{
+            res.status(200).send({message: "LOGGED OUT"})
+        })
+        .catch((err)=>{
+            res.send(400).send();
+        })
+    ;
 });
 
 /*---------------------------------------------------------------------------------------*/
