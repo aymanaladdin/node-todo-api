@@ -356,3 +356,32 @@ describe('POST /users/login', ()=>{
 
     });
 });
+
+
+describe("DELETE /users/me/token", ()=>{
+    it('Should delete token and logout',(done)=>{
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .end((err, res)=>{
+                User.findByToken(users[0].tokens[0].token)
+                    .then((user)=>{
+                        expect(user).toNotExist();
+                        done();
+                    })
+                    .catch((err)=> done(err))
+                ;
+            })
+        ;
+    });
+
+    it('Should return 401 if token not exist', (done)=>{
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth',"invalidone")
+            .expect(401)
+            .end(done)
+        ;
+    });
+});
