@@ -16,7 +16,7 @@ const users = [{
     email : "ayman@example.com",
     tokens: [{
         access : "auth",
-        token : jwt.sign({_id: u1_id.toHexString(), access: 'auth'}, "abc123").toString()
+        token : jwt.sign({_id: u1_id.toHexString(), access: 'auth'}, process.env.JWT_SECRET).toString()
     }]
 }, {
     _id : u2_id,
@@ -24,7 +24,7 @@ const users = [{
     email : "ayman@example.eg",
     tokens: [{
         access : "auth",
-        token : jwt.sign({_id: u2_id.toHexString(), access: 'auth'}, "abc123").toString()
+        token : jwt.sign({_id: u2_id.toHexString(), access: 'auth'}, process.env.JWT_SECRET).toString()
     }]
 }]
 
