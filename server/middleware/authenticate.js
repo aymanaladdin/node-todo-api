@@ -7,7 +7,7 @@ const authenticate = (req, res, next)=>{
             if(!user){
                 return Promise.reject();
             }
-            //modify the req
+            //modify the req body
             req.user = user
             req.token = token
             next();
